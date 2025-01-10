@@ -26,6 +26,7 @@ end
 ---@param file_path string
 ---@return boolean
 function adapter.is_test_file(file_path)
+    -- TODO: Add better filtering
     return file_path:match("%.ts$") ~= nil
 end
 
