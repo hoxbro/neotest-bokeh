@@ -1,16 +1,15 @@
-local neotest_bokeh = {}
-
 ---@class neotest-bokeh.Adapter
 ---@field name string
-neotest_bokeh.Adapter = {}
+local adapter = { name = "neotest-bokeh" }
 
 ---Find the project root directory given a current directory to work from.
 ---Should no root be found, the adapter can still be used in a non-project context if a test file matches.
 ---@async
 ---@param dir string @Directory to treat as cwd
 ---@return string | nil @Absolute root dir of test suite
-function neotest_bokeh.Adapter.root(dir)
-    return "/home/shh/projects/bokeh/bokehjs" -- TODO: Hardcoded
+function adapter.root(dir)
+    -- return "/home/shh/projects/bokeh/bokehjs" -- TODO: Hardcoded
+    return "/home/shh/projects/neotest-bokeh" -- TODO: Hardcoded
 end
 
 ---Filter directories when searching for test files
@@ -19,21 +18,21 @@ end
 ---@param rel_path string Path to directory, relative to root
 ---@param root string Root directory of project
 ---@return boolean
-function neotest_bokeh.Adapter.filter_dir(name, rel_path, root)
+function adapter.filter_dir(name, rel_path, root)
     return true -- TODO: Hardcoded
 end
 
 ---@async
 ---@param file_path string
 ---@return boolean
-function neotest_bokeh.Adapter.is_test_file(file_path)
-    return true -- TODO: Hardcoded
+function adapter.is_test_file(file_path)
+    return file_path:match("%.ts$") ~= nil
 end
 
 ---@async
 ---@param file_path string Absolute file path
 ---@return neotest.Tree | nil
-function neotest_bokeh.Adapter.discover_positions(file_path)
+function adapter.discover_positions(file_path)
     local lib = require("neotest.lib")
     local query = [[
     ;; Match describe blocks
@@ -61,11 +60,31 @@ end
 
 ---@param args neotest.RunArgs
 ---@return nil | neotest.RunSpec | neotest.RunSpec[]
-function neotest_bokeh.Adapter.build_spec(args) end
+function adapter.build_spec(args)
+    return nil -- TODO: Hardcoded
+end
 
 ---@async
 ---@param spec neotest.RunSpec
 ---@param result neotest.StrategyResult
 ---@param tree neotest.Tree
 ---@return table<string, neotest.Result>
-function neotest_bokeh.Adapter.results(spec, result, tree) end
+function adapter.results(spec, result, tree) end
+
+setmetatable(adapter, {
+    __call = function(_, opts)
+        -- if is_callable(opts.args) then
+        --     get_args = opts.args
+        -- elseif opts.args then
+        --     get_args = function() return opts.args end
+        -- end
+        -- if is_callable(opts.dap_adapter) then
+        --     get_dap_adapter = opts.dap_adapter
+        -- elseif opts.dap_adapter then
+        --     get_dap_adapter = function() return opts.dap_adapter end
+        -- end
+        return adapter
+    end,
+})
+
+return adapter
