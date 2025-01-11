@@ -25,16 +25,16 @@ describe("discover_positions", function()
             },
             {
                 {
-                    id = 'tests/data/test_file.ts::"describe"',
-                    name = '"describe"',
+                    id = "tests/data/test_file.ts::describe",
+                    name = "describe",
                     path = "tests/data/test_file.ts",
                     range = { 31, 21, 41, 1 },
                     type = "namespace",
                 },
                 {
                     {
-                        id = 'tests/data/test_file.ts::"describe"::"it-1"',
-                        name = '"it-1"',
+                        id = "tests/data/test_file.ts::describe::it-1",
+                        name = "it-1",
                         path = "tests/data/test_file.ts",
                         range = { 32, 13, 34, 3 },
                         type = "test",
@@ -42,16 +42,16 @@ describe("discover_positions", function()
                 },
                 {
                     {
-                        id = 'tests/data/test_file.ts::"describe"::"sub-describe"',
-                        name = '"sub-describe"',
+                        id = "tests/data/test_file.ts::describe::sub-describe",
+                        name = "sub-describe",
                         path = "tests/data/test_file.ts",
                         range = { 36, 27, 40, 3 },
                         type = "namespace",
                     },
                     {
                         {
-                            id = 'tests/data/test_file.ts::"describe"::"sub-describe"::"it-2"',
-                            name = '"it-2"',
+                            id = "tests/data/test_file.ts::describe::sub-describe::it-2",
+                            name = "it-2",
                             path = "tests/data/test_file.ts",
                             range = { 37, 15, 39, 5 },
                             type = "test",

@@ -48,7 +48,7 @@ function adapter.discover_positions(file_path)
     ((call_expression
         function: (identifier) @func_name (#eq? @func_name "describe")
         arguments: (arguments
-          (_) @namespace.name
+          (string (string_fragment) @namespace.name)
           (arrow_function) @namespace.definition
         )
     ))
@@ -57,7 +57,7 @@ function adapter.discover_positions(file_path)
     ((call_expression
         function: (identifier) @func_name (#eq? @func_name "it")
         arguments: (arguments
-          (_) @test.name
+          (string (string_fragment) @test.name)
           (arrow_function) @test.definition
         )
     ))
