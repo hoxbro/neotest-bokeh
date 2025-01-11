@@ -54,7 +54,7 @@ end
 ---@param file_path string Absolute file path
 ---@return neotest.Tree | nil
 function adapter.discover_positions(file_path)
-    local query = [[
+    local test_query = [[
     ;; Match describe blocks
     ((call_expression
         function: (identifier) @func_name (#eq? @func_name "describe")
@@ -75,7 +75,7 @@ function adapter.discover_positions(file_path)
     ]]
 
     ---@diagnostic disable-next-line: missing-fields
-    return lib.treesitter.parse_positions(file_path, query, { nested_namespaces = true })
+    return lib.treesitter.parse_positions(file_path, test_query, { nested_namespaces = true })
 end
 
 ---@param args neotest.RunArgs
