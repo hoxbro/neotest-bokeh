@@ -1,4 +1,7 @@
 local Path = require("plenary.path")
+local lib = require("neotest.lib")
+
+local root_dir
 
 ---@class neotest-bokeh.Adapter
 ---@field name string
@@ -10,9 +13,11 @@ local adapter = { name = "neotest-bokehjs" }
 ---@param dir string @Directory to treat as cwd
 ---@return string | nil @Absolute root dir of test suite
 function adapter.root(dir)
-    local lib = require("neotest.lib")
-    local root_parent = lib.files.match_root_pattern("bokehjs")(dir)
-    if root_parent ~= nil then return root_parent .. "/bokehjs" end
+    if root_dir == nil then
+        local root_parent = lib.files.match_root_pattern("bokehjs")(dir)
+        if root_parent ~= nil then root_dir = root_parent .. "/bokehjs" end
+    end
+    return root_dir
 end
 
 ---Filter directories when searching for test files
@@ -42,7 +47,6 @@ end
 ---@param file_path string Absolute file path
 ---@return neotest.Tree | nil
 function adapter.discover_positions(file_path)
-    local lib = require("neotest.lib")
     local query = [[
     ;; Match describe blocks
     ((call_expression
@@ -71,26 +75,17 @@ end
 ---@return nil | neotest.RunSpec | neotest.RunSpec[]
 function adapter.build_spec(args)
     local data = args.tree:data()
-    -- local path = data.path
-    -- local id = data.id
-    -- for _, sid in id.s
-    -- vim.split(data.id, "::")
+    local elems = vim.split(data.path, Path.path.sep)
+    local table_type = (vim.tbl_contains(elems, "unit") and "unit") or "integration"
 
-    -- TODO: Create command based on filename
-    local command = {
-        "node",
-        "make",
-        "test:unit",
-        "-k",
-        data.name,
-    }
+    local command = { "node", "make", "test:" .. table_type, "-k", '"' .. data.name .. '"' }
     local context = {
         position_id = data.id,
         strategy = args.strategy,
     }
     return {
         command = table.concat(command, " "),
-        cwd = "/home/shh/projects/bokeh/bokehjs",
+        cwd = root_dir,
         context = context,
     }
 end
