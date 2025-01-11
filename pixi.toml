@@ -3,9 +3,12 @@ name = "neotest-bokehjs"
 channels = ["conda-forge"]
 platforms = ["linux-64", "osx-arm64", "osx-64"] # , "win-64"]
 
+[activation.env]
+LAZY_STDPATH = ".pixi/lazy"
+
 [tasks]
-# install = ''
-# test = ''
+install = 'nvim -l ./tests/busted.lua --version'
+test = 'nvim -l ./tests/busted.lua tests'
 
 [dependencies]
 nvim = "*"
