@@ -4,7 +4,7 @@ local lib = require("neotest.lib")
 local root_dir
 local test_types = { "integration", "unit", "defaults" }
 
-local check_test_type = function(path)
+local get_test_type = function(path)
     local elems = (type(path) == "string" and vim.split(path, Path.path.sep)) or path
     for _, val in ipairs(test_types) do
         if vim.tbl_contains(elems, val) then return val end
@@ -44,7 +44,7 @@ end
 ---@return boolean
 function adapter.is_test_file(file_path)
     local elems = vim.split(file_path, Path.path.sep)
-    local path_check = check_test_type(elems) ~= nil
+    local path_check = get_test_type(elems) ~= nil
     local name_check = elems[#elems]:sub(1, 1) ~= "_"
     local extension_check = file_path:match("%.ts$") and not file_path:match("%.d%.ts$")
     return path_check and name_check and extension_check
@@ -82,7 +82,7 @@ end
 ---@return nil | neotest.RunSpec | neotest.RunSpec[]
 function adapter.build_spec(args)
     local data = args.tree:data()
-    local test_type = check_test_type(data.path)
+    local test_type = get_test_type(data.path)
 
     local command = { "node", "make", "test:" .. test_type, "-k", '"' .. data.name .. '"' }
     local context = {
