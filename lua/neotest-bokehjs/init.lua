@@ -8,8 +8,7 @@ local adapter = { name = "neotest-bokehjs" }
 ---@param dir string @Directory to treat as cwd
 ---@return string | nil @Absolute root dir of test suite
 function adapter.root(dir)
-    -- return "/home/shh/projects/bokeh/bokehjs" -- TODO: Hardcoded
-    return "/home/shh/projects/neotest-bokehjs" -- TODO: Hardcoded
+    return "/home/shh/projects/bokeh/bokehjs" -- TODO: Hardcoded
 end
 
 ---Filter directories when searching for test files
@@ -62,7 +61,29 @@ end
 ---@param args neotest.RunArgs
 ---@return nil | neotest.RunSpec | neotest.RunSpec[]
 function adapter.build_spec(args)
-    return nil -- TODO: Hardcoded
+    local data = args.tree:data()
+    -- local path = data.path
+    -- local id = data.id
+    -- for _, sid in id.s
+    -- vim.split(data.id, "::")
+
+    -- TODO: Create command based on filename
+    local command = {
+        "node",
+        "make",
+        "test:unit",
+        "-k",
+        data.name,
+    }
+    local context = {
+        position_id = data.id,
+        strategy = args.strategy,
+    }
+    return {
+        command = table.concat(command, " "),
+        cwd = "/home/shh/projects/bokeh/bokehjs",
+        context = context,
+    }
 end
 
 ---@async
@@ -70,7 +91,24 @@ end
 ---@param result neotest.StrategyResult
 ---@param tree neotest.Tree
 ---@return table<string, neotest.Result>
-function adapter.results(spec, result, tree) end
+function adapter.results(spec, result, tree)
+    -- vim.schedule(function()
+    --     print(vim.inspect(spec))
+    --     print(vim.inspect(result))
+    -- end)
+    local results = {}
+    if result.code == 0 then
+        results[spec.context.position_id] = {
+            status = "passed",
+        }
+    else
+        results[spec.context.position_id] = {
+            status = "failed",
+            output = result.output,
+        }
+    end
+    return results
+end
 
 setmetatable(adapter, {
     __call = function(_, opts)
