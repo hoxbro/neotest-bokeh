@@ -24,4 +24,5 @@ require("lazy.minit").busted({
         "nvim-neotest/nvim-nio",
         "nvim-neotest/neotest",
     },
+    headless = { log = vim.env.LAZY_INSTALL == "true" },
 })
