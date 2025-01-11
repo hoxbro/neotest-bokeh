@@ -7,8 +7,38 @@ on:
     branches:
       - "*"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
       - uses: hoxbro/actions/pre-commit@main
+
+  unit-test:
+    name: unit:${{ matrix.os }}
+    needs: [pre-commit]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macos-latest"] # , "windows-latest"],
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: "1"
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        # with:
+        #   pixi-version: ${{ inputs.pixi-version }}
+        #   manifest-path: ${{ inputs.pixi-manifest-path }}
+        #   environments: ${{ inputs.environments }}
+        #   activate-environment: ${{ inputs.pixi-activate-environment }}
+      - name: Install
+        shell: bash -e {0}
+        run: pixi run install
+      - name: Test
+        shell: bash -e {0}
+        run: pixi run test
