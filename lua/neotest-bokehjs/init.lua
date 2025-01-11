@@ -1,3 +1,5 @@
+local Path = require("plenary.path")
+
 ---@class neotest-bokeh.Adapter
 ---@field name string
 local adapter = { name = "neotest-bokehjs" }
@@ -8,7 +10,9 @@ local adapter = { name = "neotest-bokehjs" }
 ---@param dir string @Directory to treat as cwd
 ---@return string | nil @Absolute root dir of test suite
 function adapter.root(dir)
-    return "/home/shh/projects/bokeh/bokehjs" -- TODO: Hardcoded
+    local lib = require("neotest.lib")
+    local root_parent = lib.files.match_root_pattern("bokehjs")(dir)
+    if root_parent ~= nil then return root_parent .. "/bokehjs" end
 end
 
 ---Filter directories when searching for test files
@@ -18,15 +22,20 @@ end
 ---@param root string Root directory of project
 ---@return boolean
 function adapter.filter_dir(name, rel_path, root)
-    return true -- TODO: Hardcoded
+    local elems = vim.split(rel_path, Path.path.sep)
+    -- TODO: Look into test/defaults
+    return elems[1] == "test" and (elems[2] == nil or vim.tbl_contains({ "integration", "unit" }, elems[2]))
 end
 
 ---@async
 ---@param file_path string
 ---@return boolean
 function adapter.is_test_file(file_path)
-    -- TODO: Add better filtering
-    return file_path:match("%.ts$") ~= nil
+    local elems = vim.split(file_path, Path.path.sep)
+    local path_check = (vim.tbl_contains(elems, "integration") or vim.tbl_contains(elems, "unit"))
+    local name_check = elems[#elems]:sub(1, 1) ~= "_"
+    local extension_check = file_path:match("%.ts$") and not file_path:match("%.d%.ts$")
+    return path_check and name_check and extension_check
 end
 
 ---@async
