@@ -1,7 +1,7 @@
 local Path = require("plenary.path")
 local lib = require("neotest.lib")
 
-local root_dir
+local root_dir -- set first time adapter.root is ran
 local test_types = { "integration", "unit", "defaults" }
 
 local get_test_type = function(path)
@@ -56,22 +56,22 @@ end
 function adapter.discover_positions(file_path)
     local test_query = [[
     ;; Match describe blocks
-    ((call_expression
+    (call_expression
         function: (identifier) @func_name (#eq? @func_name "describe")
         arguments: (arguments
-          (string (string_fragment) @namespace.name)
-          (arrow_function) @namespace.definition
+            (string (string_fragment) @namespace.name)
+            (arrow_function) @namespace.definition
         )
-    ))
+    )
 
     ;; Match it blocks
-    ((call_expression
+    (call_expression
         function: (identifier) @func_name (#eq? @func_name "it")
         arguments: (arguments
-          (string (string_fragment) @test.name)
-          (arrow_function) @test.definition
+            (string (string_fragment) @test.name)
+            (arrow_function) @test.definition
         )
-    ))
+    )
     ]]
 
     ---@diagnostic disable-next-line: missing-fields
@@ -102,10 +102,6 @@ end
 ---@param tree neotest.Tree
 ---@return table<string, neotest.Result>
 function adapter.results(spec, result, tree)
-    -- vim.schedule(function()
-    --     print(vim.inspect(spec))
-    --     print(vim.inspect(result))
-    -- end)
     local results = {}
     if result.code == 0 then
         results[spec.context.position_id] = {
