@@ -13,3 +13,4 @@ test = 'nvim -l ./tests/busted.lua tests'
 [dependencies]
 nvim = "*"
 nodejs = "*"
+luarocks = "*"
