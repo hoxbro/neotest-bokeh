@@ -1,4 +1,16 @@
-load(vim.fn.system("curl -s https://raw.githubusercontent.com/folke/lazy.nvim/main/bootstrap.lua"))()
+local lazypath = vim.env.LAZY_STDPATH
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+    vim.fn.system({
+        "git",
+        "clone",
+        "--filter=blob:none",
+        "https://github.com/folke/lazy.nvim.git",
+        "--branch=stable",
+        "--depth=1",
+        lazypath,
+    })
+end
+vim.opt.rtp:prepend(lazypath)
 
 require("lazy.minit").busted({
     spec = {
