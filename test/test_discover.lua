@@ -1,7 +1,7 @@
-local neotest_bokeh = require("neotest-bokeh")
+local neotest_bokehjs = require("neotest-bokehjs")
 local nio = require("nio")
 
 nio.run(function()
-    local positions = neotest_bokeh.discover_positions("test/embed.ts")
+    local positions = neotest_bokehjs.discover_positions("test/embed.ts")
     print(vim.inspect(positions)) -- Print positions for debugging
 end)

@@ -1,6 +1,6 @@
 return {
     "nvim-neotest/neotest",
-    dependencies = { dir = "/home/shh/projects/neotest-bokeh" },
+    dependencies = { dir = "." },
     lazy = false,
-    opts = { ["neotest-bokeh"] = {} },
+    opts = { ["neotest-bokehjs"] = {} },
 }

@@ -1,6 +1,6 @@
 ---@class neotest-bokeh.Adapter
 ---@field name string
-local adapter = { name = "neotest-bokeh" }
+local adapter = { name = "neotest-bokehjs" }
 
 ---Find the project root directory given a current directory to work from.
 ---Should no root be found, the adapter can still be used in a non-project context if a test file matches.
@@ -9,7 +9,7 @@ local adapter = { name = "neotest-bokeh" }
 ---@return string | nil @Absolute root dir of test suite
 function adapter.root(dir)
     -- return "/home/shh/projects/bokeh/bokehjs" -- TODO: Hardcoded
-    return "/home/shh/projects/neotest-bokeh" -- TODO: Hardcoded
+    return "/home/shh/projects/neotest-bokehjs" -- TODO: Hardcoded
 end
 
 ---Filter directories when searching for test files
