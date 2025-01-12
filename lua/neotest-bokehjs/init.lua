@@ -1,22 +1,19 @@
 local Path = require("plenary.path")
 local lib = require("neotest.lib")
 
-local root_dir -- set first time adapter.root is ran
+local root_dir
 local test_types = { "integration", "unit", "defaults" }
 
 local get_test_type = function(path)
-    local elems = (type(path) == "string" and vim.split(path, Path.path.sep)) or path
-    for _, val in ipairs(test_types) do
-        if vim.tbl_contains(elems, val) then return val end
-    end
+    local paths = (type(path) == "string" and vim.split(path, Path.path.sep)) or path
+    local matches = vim.tbl_filter(function(val) return vim.tbl_contains(paths, val) end, test_types)
+    return matches[1]
 end
 
 ---@class neotest-bokeh.Adapter
 ---@field name string
 local adapter = { name = "neotest-bokehjs" }
 
----Find the project root directory given a current directory to work from.
----Should no root be found, the adapter can still be used in a non-project context if a test file matches.
 ---@async
 ---@param dir string @Directory to treat as cwd
 ---@return string | nil @Absolute root dir of test suite
@@ -28,26 +25,25 @@ function adapter.root(dir)
     return root_dir
 end
 
----Filter directories when searching for test files
 ---@async
 ---@param name string Name of directory
 ---@param rel_path string Path to directory, relative to root
 ---@param root string Root directory of project
 ---@return boolean
 function adapter.filter_dir(name, rel_path, root)
-    local elems = vim.split(rel_path, Path.path.sep)
-    return elems[1] == "test" and (elems[2] == nil or vim.tbl_contains(test_types, elems[2]))
+    local paths = vim.split(rel_path, Path.path.sep)
+    return paths[1] == "test" and (paths[2] == nil or vim.tbl_contains(test_types, paths[2]))
 end
 
 ---@async
 ---@param file_path string
 ---@return boolean
 function adapter.is_test_file(file_path)
-    local elems = vim.split(file_path, Path.path.sep)
-    local path_check = get_test_type(elems) ~= nil
-    local name_check = elems[#elems]:sub(1, 1) ~= "_"
-    local extension_check = file_path:match("%.ts$") and not file_path:match("%.d%.ts$")
-    return path_check and name_check and extension_check
+    local paths = vim.split(file_path, Path.path.sep)
+    return get_test_type(paths)
+        and vim.endswith(file_path, ".ts")
+        and not vim.endswith(file_path, ".d.ts")
+        and not vim.startswith(paths[#paths], "_")
 end
 
 ---@async
@@ -118,16 +114,7 @@ end
 
 setmetatable(adapter, {
     __call = function(_, opts)
-        -- if is_callable(opts.args) then
-        --     get_args = opts.args
-        -- elseif opts.args then
-        --     get_args = function() return opts.args end
-        -- end
-        -- if is_callable(opts.dap_adapter) then
-        --     get_dap_adapter = opts.dap_adapter
-        -- elseif opts.dap_adapter then
-        --     get_dap_adapter = function() return opts.dap_adapter end
-        -- end
+        if opts.root_dir then root_dir = opts.root_dir end
         return adapter
     end,
 })
