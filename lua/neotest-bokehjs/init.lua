@@ -97,6 +97,7 @@ function adapter.build_spec(args)
             runtimeExecutable = "node",
             skipFiles = { "<node_internals>/**", "**/node_modules/**" },
             sourceMaps = true,
+            resolveSourceMapLocations = { root_dir, "!/node_modules/**" },
             console = "integratedTerminal",
         }
         return {
