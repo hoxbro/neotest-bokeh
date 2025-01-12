@@ -30,15 +30,11 @@ jobs:
         with:
           fetch-depth: "1"
       - uses: prefix-dev/setup-pixi@v0.8.1
-      - name: Set TODAY
-        shell: bash -e {0}
-        run: |
-          echo "TODAY=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
       - id: cache
         uses: actions/cache/restore@v4
         with:
           path: .pixi/lazy
-          key: lazy|${{ matrix.os }}|${{ env.TODAY }}
+          key: lazy|${{ matrix.os }}|${{ hashFiles('tests/lazy-lock.json') }}
       - name: Install
         shell: bash -e {0}
         run: pixi run install
@@ -49,4 +45,4 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: .pixi/lazy
-          key: lazy|${{ matrix.os }}|${{ env.TODAY }}
+          key: lazy|${{ matrix.os }}|${{ hashFiles('tests/lazy-lock.json') }}

@@ -1,5 +1,5 @@
 local lazypath = vim.env.LAZY_STDPATH
-if not vim.loop.fs_stat(lazypath) then
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
     vim.fn.system({
         "git",
         "clone",
@@ -25,4 +25,5 @@ require("lazy.minit").busted({
         "nvim-neotest/neotest",
     },
     headless = { log = vim.env.LAZY_INSTALL == "true" },
+    lockfile = "tests/lazy-lock.json",
 })
