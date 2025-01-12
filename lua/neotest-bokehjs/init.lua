@@ -80,16 +80,37 @@ function adapter.build_spec(args)
     local data = args.tree:data()
     local test_type = get_test_type(data.path)
 
-    local command = { "node", "make", "test:" .. test_type, "-k", '"' .. data.name .. '"' }
+    local command_args = { "make", "test:" .. test_type, "-k", '"' .. data.name .. '"' }
     local context = {
         position_id = data.id,
         strategy = args.strategy,
     }
-    return {
-        command = table.concat(command, " "),
-        cwd = root_dir,
-        context = context,
-    }
+
+    if args.strategy == "dap" then
+        -- TODO: Does not work in test only in test-framework
+        local strategy = {
+            type = "pwa-node",
+            request = "launch",
+            name = "Launch: BokehJS Tests",
+            cwd = root_dir,
+            args = command_args,
+            runtimeExecutable = "node",
+            skipFiles = { "<node_internals>/**", "**/node_modules/**" },
+            sourceMaps = true,
+            console = "integratedTerminal",
+        }
+        return {
+            cwd = root_dir,
+            context = context,
+            strategy = strategy,
+        }
+    else
+        return {
+            command = "node " .. table.concat(command_args, " "),
+            cwd = root_dir,
+            context = context,
+        }
+    end
 end
 
 ---@async
@@ -98,8 +119,25 @@ end
 ---@param tree neotest.Tree
 ---@return table<string, neotest.Result>
 function adapter.results(spec, result, tree)
+    -- TODO: Improve for multiple tests and file,
+    -- but likely it needs to be added to BokehJS first
     local results = {}
-    if result.code == 0 then
+    if spec.context.strategy == "dap" then
+        local handle = assert(io.open(result.output))
+        local failed = string.find(handle:read("a"), "failed:") ~= nil
+        handle:close()
+
+        if failed then
+            results[spec.context.position_id] = {
+                status = "failed",
+                output = result.output,
+            }
+        else
+            results[spec.context.position_id] = {
+                status = "passed",
+            }
+        end
+    elseif result.code == 0 then
         results[spec.context.position_id] = {
             status = "passed",
         }
