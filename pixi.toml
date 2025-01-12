@@ -8,7 +8,7 @@ LAZY_STDPATH = ".pixi/lazy"
 
 [tasks]
 install = { cmd = 'nvim -l tests/busted.lua --version', env = { LAZY_INSTALL = "true" } }
-test = 'nvim --noplugin -l tests/busted.lua tests/'
+test = 'nvim -l tests/busted.lua tests/'
 
 [dependencies]
 nvim = "*"
