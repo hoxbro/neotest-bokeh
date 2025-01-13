@@ -257,3 +257,57 @@ describe("build_spec", function()
         assert.has_error(faulty_path)
     end)
 end)
+
+describe("results", function()
+    local good_result = "tests/data/good-result.txt"
+    local bad_result = "tests/data/bad-result.txt"
+
+    it("check-result-files", function()
+        assert(io.open(good_result))
+        assert(io.open(bad_result))
+    end)
+    it("integrated-single-success", function()
+        local id = "tests/unit/test_file.ts::describe::it-1"
+        local spec = { context = { position_id = id, strategy = "integrated" } }
+        local strategy_result = { code = 0, output = good_result }
+
+        ---@diagnostic disable-next-line: param-type-mismatch
+        local results = plugin.results(spec, strategy_result, nil)
+
+        local expected = { [id] = { status = "passed" } }
+        assert.are.same(expected, results)
+    end)
+    it("integrated-single-failure", function()
+        local id = "tests/unit/test_file.ts::describe::it-1"
+        local spec = { context = { position_id = id, strategy = "integrated" } }
+        local strategy_result = { code = 1, output = bad_result }
+
+        ---@diagnostic disable-next-line: param-type-mismatch
+        local results = plugin.results(spec, strategy_result, nil)
+
+        local expected = { [id] = { status = "failed", output = bad_result } }
+        assert.are.same(expected, results)
+    end)
+    it("dap-single-success", function()
+        local id = "tests/unit/test_file.ts::describe::it-1"
+        local spec = { context = { position_id = id, strategy = "dap" } }
+        local strategy_result = { code = 0, output = good_result }
+
+        ---@diagnostic disable-next-line: param-type-mismatch
+        local results = plugin.results(spec, strategy_result, nil)
+
+        local expected = { [id] = { status = "passed" } }
+        assert.are.same(expected, results)
+    end)
+    it("dap-single-failure", function()
+        local id = "tests/unit/test_file.ts::describe::it-1"
+        local spec = { context = { position_id = id, strategy = "dap" } }
+        local strategy_result = { code = 1, output = bad_result }
+
+        ---@diagnostic disable-next-line: param-type-mismatch
+        local results = plugin.results(spec, strategy_result, nil)
+
+        local expected = { [id] = { status = "failed", output = bad_result } }
+        assert.are.same(expected, results)
+    end)
+end)
