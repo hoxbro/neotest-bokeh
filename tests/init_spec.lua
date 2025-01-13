@@ -1,6 +1,9 @@
 local async = require("nio.tests")
 local neotest_bokehjs = require("neotest-bokehjs")
 
+local async = require("nio.tests")
+local plugin = require("neotest-bokehjs")
+local Tree = require("neotest.types").Tree
 -- local nio = require("nio")
 
 -- nio.run(function()
@@ -17,18 +20,18 @@ local root_dir = vim.uv.cwd() .. "/tests/data/bokehjs/"
 
 describe("root_dir", function()
     async.it("check if root_dir is not set", function()
-        assert.are_nil(neotest_bokehjs.root_dir)
-        assert.are_nil(neotest_bokehjs.root("not relevant, is set with __call"))
+        assert.are_nil(plugin.root_dir)
+        assert.are_nil(plugin.root("not relevant, is set with __call"))
     end)
     async.it("check if root_dir is set", function()
-        neotest_bokehjs({ root_dir = root_dir })
-        assert.are_equal(root_dir, neotest_bokehjs.root_dir)
-        assert.are_equal(root_dir, neotest_bokehjs.root("not relevant, set with __call"))
+        plugin({ root_dir = root_dir })
+        assert.are_equal(root_dir, plugin.root_dir)
+        assert.are_equal(root_dir, plugin.root("not relevant, set with __call"))
     end)
 end)
 
 describe("filter_dir", function()
-    local test_fn = function(x) return neotest_bokehjs.filter_dir("", x, "") end
+    local test_fn = function(x) return plugin.filter_dir("", x, "") end
     async.it("good 1", function() assert.are_true(test_fn("test")) end)
     async.it("good 2", function() assert.are_true(test_fn("test/unit/")) end)
     async.it("bad 1", function() assert.are_false(test_fn("tests")) end)
@@ -39,7 +42,7 @@ describe("filter_dir", function()
 end)
 
 describe("is_test_file", function()
-    local test_fn = function(x) return neotest_bokehjs.is_test_file(root_dir .. x) end
+    local test_fn = function(x) return plugin.is_test_file(root_dir .. x) end
     async.it("good 1", function() assert.are_true(test_fn("/test/unit/index.ts")) end)
     async.it("good 2", function() assert.are_true(test_fn("/test/unit/sub/index.ts")) end)
     async.it("bad 1", function() assert.are_false(test_fn("/test/unit/index.d.ts")) end)
@@ -50,7 +53,7 @@ end)
 
 describe("discover_positions", function()
     async.it("discover_positions in test_file.ts", function()
-        local positions = neotest_bokehjs.discover_positions("tests/data/test_file.ts"):to_list()
+        local positions = plugin.discover_positions("tests/data/test_file.ts"):to_list()
         local expected_positions = {
             {
                 id = "tests/data/test_file.ts",
