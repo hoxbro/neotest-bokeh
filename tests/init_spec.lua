@@ -243,4 +243,17 @@ describe("build_spec", function()
         assert.are_equal(spec.context.position_id, "tests/unit/test_file.ts")
         assert.are_equal(spec.context.strategy, "dap")
     end)
+    it("faulty-path", function()
+        local case = {
+            id = "tests/not-unit/test_file.ts::describe::it-1",
+            name = "it-1",
+            path = "tests/not-unit/test_file.ts",
+            range = { 32, 13, 34, 3 },
+            type = "test",
+        }
+        local tree = {}
+        function tree:data() return case end
+        local faulty_path = function() plugin.build_spec({ tree = tree, strategy = "integrated" }) end
+        assert.has_error(faulty_path)
+    end)
 end)
