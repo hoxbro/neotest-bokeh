@@ -12,7 +12,12 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy.minit").busted({
+local root = vim.fn.fnamemodify(vim.env.LAZY_STDPATH, ":p")
+for _, name in ipairs({ "config", "data", "state", "cache" }) do
+    vim.env[("XDG_%s_HOME"):format(name:upper())] = root .. "/" .. name
+end
+
+local opts = require("lazy.minit").busted.setup({
     spec = {
         "nvim-lua/plenary.nvim",
         {
@@ -24,6 +29,14 @@ require("lazy.minit").busted({
         "nvim-neotest/nvim-nio",
         "nvim-neotest/neotest",
     },
-    headless = { log = vim.env.LAZY_INSTALL == "true" },
     lockfile = "tests/lazy-lock.json",
 })
+
+vim.o.loadplugins = true
+require("lazy").setup(opts)
+
+if _G.arg[1] == "--update" then
+    require("lazy").update():wait()
+else
+    require("lazy.minit").busted.run()
+end
