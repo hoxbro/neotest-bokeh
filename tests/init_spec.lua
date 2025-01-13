@@ -1,20 +1,5 @@
 local async = require("nio.tests")
-local neotest_bokehjs = require("neotest-bokehjs")
-
-local async = require("nio.tests")
 local plugin = require("neotest-bokehjs")
-local Tree = require("neotest.types").Tree
--- local nio = require("nio")
-
--- nio.run(function()
---     local positions = neotest_bokehjs.discover_positions("tests/data/test_file.ts"):to_list()
---     local output = vim.inspect(positions)
---     local file = io.open("results.txt", "w")
---     if file ~= nil then
---         file:write(output)
---         file:close()
---     end
--- end)
 
 local root_dir = vim.uv.cwd() .. "/tests/data/bokehjs/"
 
@@ -101,5 +86,161 @@ describe("discover_positions", function()
         }
 
         assert.are.same(positions, expected_positions)
+    end)
+end)
+
+describe("build_spec", function()
+    it("test-integrated", function()
+        local case = {
+            id = "tests/unit/test_file.ts::describe::it-1",
+            name = "it-1",
+            path = "tests/unit/test_file.ts",
+            range = { 32, 13, 34, 3 },
+            type = "test",
+        }
+        local tree = {}
+        function tree:data() return case end
+        local spec = plugin.build_spec({ tree = tree, strategy = "integrated" })
+
+        assert(spec)
+        assert.are_equal(spec.cwd, root_dir)
+        assert.are_equal(spec.command, 'node make test:unit -k "it-1"')
+
+        assert(spec.context)
+        assert.are_equal(spec.context.position_id, "tests/unit/test_file.ts::describe::it-1")
+        assert.are_equal(spec.context.strategy, "integrated")
+    end)
+    it("test-dap", function()
+        local case = {
+            id = "tests/unit/test_file.ts::describe::it-1",
+            name = "it-1",
+            path = "tests/unit/test_file.ts",
+            range = { 32, 13, 34, 3 },
+            type = "test",
+        }
+        local tree = {}
+        function tree:data() return case end
+        local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+
+        assert(spec)
+        local expected_strategy = {
+            args = { "make", "test:unit", "-k", '"it-1"' },
+            console = "integratedTerminal",
+            cwd = root_dir,
+            name = "Launch: BokehJS Tests",
+            request = "launch",
+            resolveSourceMapLocations = { root_dir, "!/node_modules/**" },
+            runtimeExecutable = "node",
+            skipFiles = { "<node_internals>/**", "**/node_modules/**" },
+            sourceMaps = true,
+            type = "pwa-node",
+        }
+        assert.same(spec.strategy, expected_strategy)
+
+        assert(spec.context)
+        assert.are_equal(spec.context.position_id, "tests/unit/test_file.ts::describe::it-1")
+        assert.are_equal(spec.context.strategy, "dap")
+    end)
+    it("namespace-integrated", function()
+        local case = {
+            id = "tests/unit/test_file.ts::describe",
+            name = "describe",
+            path = "tests/unit/test_file.ts",
+            range = { 31, 21, 41, 1 },
+            type = "namespace",
+        }
+        local tree = {}
+        function tree:data() return case end
+        local spec = plugin.build_spec({ tree = tree, strategy = "integrated" })
+
+        assert(spec)
+        assert.are_equal(spec.cwd, root_dir)
+        assert.are_equal(spec.command, 'node make test:unit -k "describe"')
+
+        assert(spec.context)
+        assert.are_equal(spec.context.position_id, "tests/unit/test_file.ts::describe")
+        assert.are_equal(spec.context.strategy, "integrated")
+    end)
+    it("namespace-dap", function()
+        local case = {
+            id = "tests/unit/test_file.ts::describe",
+            name = "describe",
+            path = "tests/unit/test_file.ts",
+            range = { 31, 21, 41, 1 },
+            type = "namespace",
+        }
+        local tree = {}
+        function tree:data() return case end
+        local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+
+        assert(spec)
+        local expected_strategy = {
+            args = { "make", "test:unit", "-k", '"describe"' },
+            console = "integratedTerminal",
+            cwd = root_dir,
+            name = "Launch: BokehJS Tests",
+            request = "launch",
+            resolveSourceMapLocations = { root_dir, "!/node_modules/**" },
+            runtimeExecutable = "node",
+            skipFiles = { "<node_internals>/**", "**/node_modules/**" },
+            sourceMaps = true,
+            type = "pwa-node",
+        }
+        assert.same(spec.strategy, expected_strategy)
+
+        assert(spec.context)
+        assert.are_equal(spec.context.position_id, "tests/unit/test_file.ts::describe")
+        assert.are_equal(spec.context.strategy, "dap")
+    end)
+    it("file-integrated", function() -- NOTE: Does not currently work when running code
+        local case = {
+            id = "tests/unit/test_file.ts",
+            name = "test_file.ts",
+            path = "tests/unit/test_file.ts",
+            range = { 0, 0, 42, 0 },
+            type = "file",
+        }
+        local tree = {}
+        function tree:data() return case end
+        local spec = plugin.build_spec({ tree = tree, strategy = "integrated" })
+
+        assert(spec)
+        assert.are_equal(spec.cwd, root_dir)
+        assert.are_equal(spec.command, 'node make test:unit -k "test_file.ts"')
+
+        assert(spec.context)
+        assert.are_equal(spec.context.position_id, "tests/unit/test_file.ts")
+        assert.are_equal(spec.context.strategy, "integrated")
+    end)
+    it("file-dap", function() -- NOTE: Does not currently work when running code
+        local case = {
+            id = "tests/unit/test_file.ts",
+            name = "test_file.ts",
+            path = "tests/unit/test_file.ts",
+            range = { 0, 0, 42, 0 },
+            type = "file",
+        }
+        local tree = {}
+        function tree:data() return case end
+        local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+
+        assert(spec)
+        local expected_strategy = {
+            args = { "make", "test:unit", "-k", '"test_file.ts"' },
+            console = "integratedTerminal",
+            cwd = root_dir,
+            name = "Launch: BokehJS Tests",
+            request = "launch",
+            resolveSourceMapLocations = { root_dir, "!/node_modules/**" },
+            runtimeExecutable = "node",
+            skipFiles = { "<node_internals>/**", "**/node_modules/**" },
+            sourceMaps = true,
+            type = "pwa-node",
+        }
+        assert.same(spec.strategy, expected_strategy)
+
+        assert(spec.context)
+        assert.are_equal(spec.context.position_id, "tests/unit/test_file.ts")
+        assert.are_equal(spec.context.strategy, "dap")
     end)
 end)

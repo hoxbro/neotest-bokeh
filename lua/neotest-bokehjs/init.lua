@@ -78,6 +78,7 @@ end
 function adapter.build_spec(args)
     local data = args.tree:data()
     local test_type = get_test_type(data.path)
+    assert(test_type, "must have test, integration, or default in path.")
 
     local command_args = { "make", "test:" .. test_type, "-k", '"' .. data.name .. '"' }
     local context = {
