@@ -1,7 +1,6 @@
 local Path = require("plenary.path")
 local lib = require("neotest.lib")
 
-local root_dir
 local test_types = { "integration", "unit", "defaults" }
 
 local get_test_type = function(path)
@@ -18,11 +17,11 @@ local adapter = { name = "neotest-bokehjs" }
 ---@param dir string @Directory to treat as cwd
 ---@return string | nil @Absolute root dir of test suite
 function adapter.root(dir)
-    if root_dir == nil then
+    if adapter.root_dir == nil then
         local root_parent = lib.files.match_root_pattern("bokehjs")(dir)
-        if root_parent ~= nil then root_dir = root_parent .. "/bokehjs" end
+        if root_parent ~= nil then adapter.root_dir = root_parent .. "/bokehjs" end
     end
-    return root_dir
+    return adapter.root_dir
 end
 
 ---@async
@@ -40,7 +39,7 @@ end
 ---@return boolean
 function adapter.is_test_file(file_path)
     local paths = vim.split(file_path, Path.path.sep)
-    return get_test_type(paths)
+    return get_test_type(paths) ~= nil
         and vim.endswith(file_path, ".ts")
         and not vim.endswith(file_path, ".d.ts")
         and not vim.startswith(paths[#paths], "_")
@@ -79,6 +78,7 @@ end
 function adapter.build_spec(args)
     local data = args.tree:data()
     local test_type = get_test_type(data.path)
+    assert(test_type, "must have test, integration, or default in path.")
 
     local command_args = { "make", "test:" .. test_type, "-k", '"' .. data.name .. '"' }
     local context = {
@@ -92,23 +92,23 @@ function adapter.build_spec(args)
             type = "pwa-node",
             request = "launch",
             name = "Launch: BokehJS Tests",
-            cwd = root_dir,
+            cwd = adapter.root_dir,
             args = command_args,
             runtimeExecutable = "node",
             skipFiles = { "<node_internals>/**", "**/node_modules/**" },
             sourceMaps = true,
-            resolveSourceMapLocations = { root_dir, "!/node_modules/**" },
+            resolveSourceMapLocations = { adapter.root_dir, "!/node_modules/**" },
             console = "integratedTerminal",
         }
         return {
-            cwd = root_dir,
+            cwd = adapter.root_dir,
             context = context,
             strategy = strategy,
         }
     else
         return {
             command = "node " .. table.concat(command_args, " "),
-            cwd = root_dir,
+            cwd = adapter.root_dir,
             context = context,
         }
     end
@@ -153,7 +153,7 @@ end
 
 setmetatable(adapter, {
     __call = function(_, opts)
-        if opts.root_dir then root_dir = opts.root_dir end
+        if opts.root_dir then adapter.root_dir = opts.root_dir end
         return adapter
     end,
 })

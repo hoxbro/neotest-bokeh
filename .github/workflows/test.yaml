@@ -41,7 +41,7 @@ jobs:
         run: pixi run install
       - name: Test
         shell: bash -e {0}
-        run: pixi run test
+        run: pixi run test --output=TAP
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
