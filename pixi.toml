@@ -7,10 +7,9 @@ platforms = ["linux-64", "osx-arm64", "osx-64"]
 LAZY_STDPATH = ".pixi/lazy"
 
 [tasks]
-install = { cmd = 'nvim -l tests/busted.lua --version', env = { LAZY_INSTALL = "true" } }
+install = 'nvim -l tests/busted.lua --install'
 test = 'nvim -l tests/busted.lua tests/'
 
 [dependencies]
 nvim = "*"
 nodejs = "*"
-luarocks = "*"

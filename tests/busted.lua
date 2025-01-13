@@ -12,8 +12,10 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy.minit").busted({
+local opts = {
     spec = {
+        { dir = vim.uv.cwd() },
+        "lunarmodules/busted",
         "nvim-lua/plenary.nvim",
         {
             "nvim-treesitter/nvim-treesitter",
@@ -24,6 +26,14 @@ require("lazy.minit").busted({
         "nvim-neotest/nvim-nio",
         "nvim-neotest/neotest",
     },
-    headless = { log = vim.env.LAZY_INSTALL == "true" },
     lockfile = "tests/lazy-lock.json",
-})
+}
+
+vim.o.loadplugins = true
+require("lazy").setup(opts)
+
+if _G.arg[1] == "--install" then
+    require("lazy").restore():wait()
+else
+    require("lazy.minit").busted.run()
+end
