@@ -34,4 +34,9 @@ local opts = require("lazy.minit").busted.setup({
 
 vim.o.loadplugins = true
 require("lazy").setup(opts)
-require("lazy.minit").busted.run()
+
+if _G.arg[1] == "--update" then
+    require("lazy").update():wait()
+else
+    require("lazy.minit").busted.run()
+end
