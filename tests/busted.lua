@@ -12,10 +12,8 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-local opts = {
+local opts = require("lazy.minit").busted.setup({
     spec = {
-        { dir = vim.uv.cwd() },
-        "lunarmodules/busted",
         "nvim-lua/plenary.nvim",
         {
             "nvim-treesitter/nvim-treesitter",
@@ -27,7 +25,7 @@ local opts = {
         "nvim-neotest/neotest",
     },
     lockfile = "tests/lazy-lock.json",
-}
+})
 
 vim.o.loadplugins = true
 require("lazy").setup(opts)
