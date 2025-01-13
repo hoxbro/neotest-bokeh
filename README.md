@@ -1,6 +1,10 @@
 # neotest-bokehjs
 
-[Neotest](https://github.com/nvim-neotest/neotest) adapter for [BokehJS](https://github.com/bokeh/bokeh).
+[Neotest](https://github.com/nvim-neotest/neotest) adapter for [BokehJS](https://github.com/bokeh/bokeh)
+
+https://github.com/user-attachments/assets/5c56ac60-b6cb-4b8e-afc4-b315b9dab219
+
+## Installation
 
 Requires [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) and the TypeScript parser.
 
