@@ -17,11 +17,8 @@ for _, name in ipairs({ "config", "data", "state", "cache" }) do
     vim.env[("XDG_%s_HOME"):format(name:upper())] = root .. "/" .. name
 end
 
-vim.o.loadplugins = true
-require("lazy").setup({
+local opts = require("lazy.minit").busted.setup({
     spec = {
-        { dir = vim.uv.cwd() },
-        "lunarmodules/busted",
         "nvim-lua/plenary.nvim",
         {
             "nvim-treesitter/nvim-treesitter",
@@ -35,4 +32,6 @@ require("lazy").setup({
     lockfile = "tests/lazy-lock.json",
 })
 
+vim.o.loadplugins = true
+require("lazy").setup(opts)
 require("lazy.minit").busted.run()
